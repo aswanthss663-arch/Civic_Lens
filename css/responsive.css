@@ -1,0 +1,151 @@
+/* ==========================================================================
+   Responsive Design & Mobile Navigation Bar
+   ========================================================================== */
+
+/* Media Query: Tablets & Mobile (< 1024px) */
+@media (max-width: 1024px) {
+  #app-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height) 1fr;
+    grid-template-areas:
+      "header"
+      "main";
+  }
+
+  .app-sidebar {
+    display: none; /* Hide sidebar, replace with mobile bottom navbar */
+  }
+
+  .app-main {
+    padding: 1.25rem;
+    padding-bottom: 5rem; /* Space for bottom navbar */
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .map-page-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .map-canvas-container {
+    height: 450px;
+  }
+
+  /* Mobile Bottom Navigation Bar */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: rgba(19, 27, 46, 0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-color);
+    z-index: 990;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 0.5rem;
+  }
+
+  [data-theme="light"] .mobile-nav {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    width: 20%;
+    transition: color var(--transition-fast);
+  }
+
+  .mobile-nav-item.active {
+    color: #38bdf8;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1.25rem;
+  }
+
+  /* Special Highlighted Mobile Report Button */
+  .mobile-nav-item.report-cta {
+    transform: translateY(-12px);
+  }
+
+  .mobile-nav-item.report-cta .mobile-nav-icon-bg {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.5);
+    font-size: 1.4rem;
+  }
+
+  .demo-controller {
+    bottom: 4.8rem;
+    width: 90%;
+    justify-content: space-between;
+    padding: 0.4rem 0.85rem;
+  }
+}
+
+/* Media Query: Phones (< 640px) */
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ai-analysis-results {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-step {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .app-header {
+    padding: 0 1rem;
+  }
+
+  .brand-tagline {
+    display: none;
+  }
+}

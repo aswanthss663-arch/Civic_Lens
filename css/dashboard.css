@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Dashboard Page Styling
+   ========================================================================== */
+
+.dashboard-hero {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.hero-text h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.hero-text p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Stats Metrics Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.stat-card.total::before { background-color: #3b82f6; }
+.stat-card.resolved::before { background-color: #10b981; }
+.stat-card.pending::before { background-color: #f59e0b; }
+.stat-card.high-priority::before { background-color: #ef4444; }
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.stat-card.total .stat-value { color: #60a5fa; }
+.stat-card.resolved .stat-value { color: #34d399; }
+.stat-card.pending .stat-value { color: #fbbf24; }
+.stat-card.high-priority .stat-value { color: #f87171; }
+
+.stat-footer {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Quick Actions Cards */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.action-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-color-glow);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background-color: var(--bg-card-hover);
+}
+
+.action-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.action-card:nth-child(1) .action-icon-wrapper { background: rgba(37, 99, 235, 0.15); color: #38bdf8; }
+.action-card:nth-child(2) .action-icon-wrapper { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.action-card:nth-child(3) .action-icon-wrapper { background: rgba(139, 92, 246, 0.15); color: #c084fc; }
+.action-card:nth-child(4) .action-icon-wrapper { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+.action-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.action-info p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+/* Dashboard Two Column Grid */
+.dashboard-content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Recent Activity List */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  transition: background var(--transition-fast);
+}
+
+.activity-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.activity-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.activity-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activity-time {
+  color: var(--text-muted);
+}

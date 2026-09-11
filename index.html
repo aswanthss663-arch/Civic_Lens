@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Impactora</title>
+  <meta name="description" content="Citizen-focused civic issue reporting & accountability platform. Report the problem. Track the action. Verify the solution." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet.js (Interactive Maps — OpenStreetMap, no API key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs=" crossorigin=""></script>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/map-live.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body data-theme="dark">
+
+  <div id="app-container">
+
+    <!-- Desktop Navigation Sidebar -->
+    <aside class="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-logo">IR</div>
+        <div class="brand-info">
+          <span class="brand-title">Impactora</span>
+          <span class="brand-tagline">Track to Resolution</span>
+        </div>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item active" href="#dashboard">
+          <a href="#dashboard"><span class="nav-icon">📊</span> <span data-i18n="navDashboard">Dashboard</span></a>
+        </li>
+        <li class="nav-item" href="#report">
+          <a href="#report"><span class="nav-icon">📸</span> <span data-i18n="navReport">Report Issue</span></a>
+        </li>
+        <li class="nav-item" href="#complaints">
+          <a href="#complaints"><span class="nav-icon">📁</span> <span data-i18n="navComplaints">My Complaints</span></a>
+        </li>
+        <li class="nav-item" href="#map">
+          <a href="#map"><span class="nav-icon">📍</span> <span data-i18n="navMap">Civic Map</span></a>
+        </li>
+        <li class="nav-item" href="#public-dashboard">
+          <a href="#public-dashboard"><span class="nav-icon">📈</span> <span data-i18n="navPublic">Public Dashboard</span></a>
+        </li>
+        <li class="nav-item" href="#insights">
+          <a href="#insights"><span class="nav-icon">✨</span> <span data-i18n="navInsights">AI Insights</span></a>
+        </li>
+        <li class="nav-item" href="#notifications">
+          <a href="#notifications"><span class="nav-icon">🔔</span> <span data-i18n="navNotifications">Notifications</span></a>
+        </li>
+        <li class="nav-item" href="#profile">
+          <a href="#profile"><span class="nav-icon">👤</span> <span data-i18n="navProfile">Profile & Settings</span></a>
+        </li>
+        <li class="nav-item" href="#signin">
+          <a href="#signin"><span class="nav-icon">🔑</span> <span>Sign In</span></a>
+        </li>
+      </ul>
+
+
+      <div class="sidebar-cta">
+        <button class="btn-report-main" onclick="location.hash='#report'">
+          <span style="font-size: 1.1rem;">+</span> <span data-i18n="btnReportProblem">+ Report a Problem</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Top App Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <h2 class="page-title" id="current-page-title">Dashboard Overview</h2>
+      </div>
+
+      <div class="header-actions">
+        <button class="lang-toggle" id="top-lang-toggle">🌐 Tamil</button>
+        <button class="theme-toggle" id="top-theme-toggle">☀️ Light</button>
+
+        <button class="icon-btn" onclick="location.hash='#notifications'" title="Notifications">
+          <span>🔔</span>
+          <span class="badge-dot" id="notif-unread-badge"></span>
+        </button>
+
+        <div class="user-avatar-mini" title="Karthik Raja" onclick="location.hash='#profile'" style="cursor: pointer;">
+          KR
+        </div>
+      </div>
+    </header>
+
+    <!-- Main View Content Shell -->
+    <main class="app-main">
+
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view-section active">
+        <div class="dashboard-hero">
+          <div class="hero-text">
+            <h1 data-i18n="heroTitle">Your city. Your voice. Your impact.</h1>
+            <p data-i18n="heroSub">Report the Problem. Track the Action. Verify the Solution.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <span class="db-status-badge status-offline" id="db-status-badge">
+              <span class="db-status-dot"></span>
+              <span id="db-status-text">Checking DB...</span>
+            </span>
+            <span class="last-updated-text" id="dash-last-updated"></span>
+            <button class="btn btn-primary" onclick="location.hash='#report'" style="padding: 0.85rem 1.5rem; font-size: 1rem;">
+              + Report a Problem
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <div class="stat-label">Total Reports</div>
+            <div class="stat-value" id="dash-stat-total">1,284</div>
+            <div class="stat-footer"><span>📈</span> Citywide complaints</div>
+          </div>
+          <div class="stat-card resolved">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-value" id="dash-stat-resolved">947</div>
+            <div class="stat-footer"><span>✅</span> 73.7% Resolution Rate</div>
+          </div>
+          <div class="stat-card pending">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value" id="dash-stat-pending">337</div>
+            <div class="stat-footer"><span>⏳</span> In Progress / Active</div>
+          </div>
+          <div class="stat-card high-priority">
+            <div class="stat-label">High Priority</div>
+            <div class="stat-value" id="dash-stat-high-priority">75</div>
+            <div class="stat-footer"><span>⚠️</span> Critical SLA Action</div>
+          </div>
+        </div>
+
+        <!-- Quick Action Cards -->
+        <div class="quick-actions-grid">
+          <div class="action-card" onclick="location.hash='#report'">
+            <div class="action-icon-wrapper">📸</div>
+            <div class="action-info">
+              <h4>Report Issue</h4>
+              <p>Upload photo & AI detect</p>
+            </div>
+          </div>
+          <div class="action-card" onclick="location.hash='#map'">
+            <div class="action-icon-wrapper">📍</div>
+            <div class="action-info">
+              <h4>View Civic Map</h4>
+              <p>Interactive city pins</p>
+            </div>
+          </div>
+          <div class="action-card" onclick="location.hash='#public-dashboard'">
+            <div class="action-icon-wrapper">📊</div>
+            <div class="action-info">
+              <h4>Public Dashboard</h4>
+              <p>Resolution transparency</p>
+            </div>
+          </div>
+          <div class="action-card" onclick="location.hash='#notifications'">
+            <div class="action-icon-wrapper">🔔</div>
+            <div class="action-info">
+              <h4>Notifications</h4>
+              <p>Verification & alerts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Dashboard Layout -->
+        <div class="dashboard-content-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><span>⚡</span> Recent Activity Feed</h3>
+              <button class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" onclick="location.hash='#complaints'">View All →</button>
+            </div>
+            <div class="activity-list" id="dashboard-recent-activity">
+              <!-- Rendered via js/dashboard.js -->
+            </div>
+          </div>
+
+          <!-- Live Location Widget -->
+          <div class="live-location-card">
+            <div class="location-header">
+              <div class="location-pulse-ring"></div>
+              <div>
+                <div class="location-title">Live Location</div>
+                <span class="location-live-badge"><span class="live-dot"></span> GPS Active</span>
+              </div>
+            </div>
+            <div class="location-coords">
+              <div class="coord-item">
+                <div class="coord-label">Latitude</div>
+                <div class="coord-value" id="live-lat">—</div>
+              </div>
+              <div class="coord-item">
+                <div class="coord-label">Longitude</div>
+                <div class="coord-value" id="live-lng">—</div>
+              </div>
+            </div>
+            <div class="location-address" id="live-address">📡 Requesting location access...</div>
+            <div class="location-accuracy">
+              <span>Accuracy</span>
+              <span class="accuracy-value" id="live-accuracy">—</span>
+            </div>
+            <div class="location-error" id="live-location-error" style="display:none;"></div>
+            <button class="btn-report-here" id="btn-report-from-here" onclick="location.hash='#report'">
+              📸 Report Issue From Here
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. REPORT ISSUE VIEW -->
+      <section id="view-report" class="view-section">
+        <div class="report-container">
+          <div class="card">
+            <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.35rem;">Report a Civic Issue</h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;">
+              Snap or upload a picture. Our prototype AI automatically classifies severity, detects duplicates, and assigns the correct department.
+            </p>
+
+            <form id="report-issue-form">
+              <div class="form-grid">
+
+                <!-- Image Upload / Camera Dropzone -->
+                <div class="form-group full-width">
+                  <label class="form-label">📸 Upload Evidence Photo</label>
+                  <div class="dropzone-container" id="image-dropzone">
+                    <input type="file" id="image-file-input" accept="image/*" style="display: none;" />
+                    <img id="upload-preview-img" style="display: none; width: 100%; max-height: 240px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 0.75rem;" />
+                    
+                    <div id="dropzone-prompt">
+                      <div class="dropzone-icon">📷</div>
+                      <div class="dropzone-prompt">Drag & drop photo here or click to browse</div>
+                      <div class="dropzone-sub">Supports JPG, PNG, WEBP (Max 10MB)</div>
+                      <div class="dropzone-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-use-camera" style="font-size: 0.8rem;">
+                          📷 Use Camera
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- AI Prototype Analysis Preview Container -->
+                  <div class="ai-preview-card" id="ai-analysis-card">
+                    <!-- Populated via js/report.js -->
+                  </div>
+                </div>
+
+                <!-- Issue Title -->
+                <div class="form-group full-width">
+                  <label class="form-label" for="report-title">Issue Title (Short Summary)</label>
+                  <input type="text" id="report-title" class="form-input" placeholder="e.g. Deep pothole near Anna Nagar junction" />
+                </div>
+
+                <!-- Category Picker Grid -->
+                <div class="form-group full-width">
+                  <label class="form-label">Select Category</label>
+                  <div class="category-grid">
+                    <div class="category-option selected" data-category="Pothole">
+                      <span class="category-icon">🕳️</span>
+                      <span class="category-title">Pothole</span>
+                    </div>
+                    <div class="category-option" data-category="Streetlight">
+                      <span class="category-icon">💡</span>
+                      <span class="category-title">Streetlight</span>
+                    </div>
+                    <div class="category-option" data-category="Garbage">
+                      <span class="category-icon">🗑️</span>
+                      <span class="category-title">Garbage</span>
+                    </div>
+                    <div class="category-option" data-category="Drainage">
+                      <span class="category-icon">🌊</span>
+                      <span class="category-title">Drainage</span>
+                    </div>
+                    <div class="category-option" data-category="Traffic Signal">
+                      <span class="category-icon">🚦</span>
+                      <span class="category-title">Traffic Signal</span>
+                    </div>
+                    <div class="category-option" data-category="Road Damage">
+                      <span class="category-icon">🛣️</span>
+                      <span class="category-title">Road Damage</span>
+                    </div>
+                    <div class="category-option" data-category="Road Obstruction">
+                      <span class="category-icon">🚧</span>
+                      <span class="category-title">Obstruction</span>
+                    </div>
+                    <div class="category-option" data-category="Public Property Damage">
+                      <span class="category-icon">🌳</span>
+                      <span class="category-title">Property Damage</span>
+                    </div>
+                    <div class="category-option" data-category="Other">
+                      <span class="category-icon">📋</span>
+                      <span class="category-title">Other Issue</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group full-width">
+                  <label class="form-label" for="report-description">Description & Details</label>
+                  <textarea id="report-description" class="form-textarea" placeholder="Describe the problem, depth/size, hazard level, and exact landmark..."></textarea>
+                </div>
+
+                <!-- Location & GPS Integration -->
+                <div class="form-group full-width">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label class="form-label">📍 Incident Location</label>
+                    <button type="button" class="btn btn-secondary" id="btn-get-gps" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
+                      🎯 Use My Location (GPS)
+                    </button>
+                  </div>
+                  <input type="text" id="input-address" class="form-input" value="Anna Nagar 2nd Avenue, Near Anna Arch, Chennai" placeholder="Address or Landmark" />
+                  <div id="gps-status-text" style="font-size: 0.78rem; margin-top: 0.35rem; color: var(--text-muted);">
+                    Click "Use My Location" to capture precise GPS coordinates.
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Latitude</label>
+                  <input type="text" id="input-latitude" class="form-input" value="13.0850" readonly />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Longitude</label>
+                  <input type="text" id="input-longitude" class="form-input" value="80.2101" readonly />
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group full-width" style="margin-top: 1rem;">
+                  <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1.05rem;">
+                    🚀 Submit Complaint & Generate Tracker ID
+                  </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MY COMPLAINTS VIEW -->
+      <section id="view-complaints" class="view-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800;">My Complaints</h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem;">
+              Track all your submitted civic reports through to citizen verification.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; width: 100%; max-width: 500px;">
+            <input type="text" id="complaints-search" class="form-input" placeholder="Search by ID, address, issue..." style="width: 100%;" />
+            <div style="display: flex; gap: 0.25rem;">
+              <button class="view-toggle-btn active" id="btn-view-grid" title="Grid View">📇 Grid</button>
+              <button class="view-toggle-btn" id="btn-view-table" title="Table View">📑 Table</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Filter Tabs -->
+        <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.75rem; margin-bottom: 1.5rem;" id="complaints-filter-tabs">
+          <button class="btn btn-secondary filter-tab active" data-filter="ALL">All</button>
+          <button class="btn btn-secondary filter-tab" data-filter="SUBMITTED">Submitted</button>
+          <button class="btn btn-secondary filter-tab" data-filter="AI_VERIFIED">Verified</button>
+          <button class="btn btn-secondary filter-tab" data-filter="ASSIGNED">Assigned</button>
+          <button class="btn btn-secondary filter-tab" data-filter="IN_PROGRESS">In Progress</button>
+          <button class="btn btn-secondary filter-tab" data-filter="RESOLVED">Resolved</button>
+          <button class="btn btn-secondary filter-tab" data-filter="CITIZEN_VERIFIED">Citizen Verified</button>
+          <button class="btn btn-secondary filter-tab" data-filter="REOPENED">Reopened</button>
+        </div>
+
+        <!-- Complaints List Grid -->
+        <div class="stats-grid" id="complaints-list-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <!-- Rendered via js/complaints.js -->
+        </div>
+      </section>
+
+      <!-- 4. COMPLAINT DETAILS VIEW -->
+      <section id="view-details" class="view-section">
+        <div id="details-view-container">
+          <!-- Rendered via js/details.js -->
+        </div>
+      </section>
+
+      <!-- 5. CIVIC MAP VIEW -->
+      <section id="view-map" class="view-section">
+        <div class="map-page-layout">
+          <div class="map-sidebar-panel card">
+            <h3 class="card-title"><span>📍</span> Map Filters & Zones</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">
+              Filter complaints across city zones. Click any pin to open issue card.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">Search Map</label>
+              <input type="text" id="map-search-input" class="form-input" placeholder="Search address or category..." />
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <button class="map-pill active" data-filter="ALL">All Incidents</button>
+              <button class="map-pill" data-filter="HIGH_PRIORITY">🔴 High Priority / Reopened</button>
+              <button class="map-pill" data-filter="Pothole">🕳️ Potholes</button>
+              <button class="map-pill" data-filter="Streetlight">💡 Streetlights</button>
+              <button class="map-pill" data-filter="Garbage">🗑️ Garbage</button>
+              <button class="map-pill" data-filter="Drainage">🌊 Drainage</button>
+              <button class="map-pill" data-filter="RESOLVED">🟢 Resolved</button>
+            </div>
+          </div>
+
+          <div class="map-canvas-container" id="civic-map-viewport">
+            <!-- Rendered SVG Map via js/map.js -->
+          </div>
+        </div>
+        <div id="map-popup-view"></div>
+      </section>
+
+      <!-- 6. PUBLIC DASHBOARD VIEW -->
+      <section id="view-public-dashboard" class="view-section">
+        <div style="margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.6rem; font-weight: 800;">Public Transparency Dashboard</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">
+            Real-time civic accountability metrics and department SLA resolution rates.
+          </p>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom: 1.5rem;">
+          <div class="stat-card total">
+            <div class="stat-label">TOTAL COMPLAINTS</div>
+            <div class="stat-value" id="pub-stat-total">1,284</div>
+          </div>
+          <div class="stat-card resolved">
+            <div class="stat-label">RESOLVED</div>
+            <div class="stat-value" id="pub-stat-resolved">947</div>
+          </div>
+          <div class="stat-card pending">
+            <div class="stat-label">PENDING</div>
+            <div class="stat-value" id="pub-stat-pending">337</div>
+          </div>
+          <div class="stat-card high-priority">
+            <div class="stat-label">HIGH PRIORITY</div>
+            <div class="stat-value" id="pub-stat-high-priority">75</div>
+          </div>
+        </div>
+
+        <div class="dashboard-content-grid">
+          <!-- Resolution Rate Gauge & SVG Category Chart -->
+          <div class="card">
+            <h3 class="card-title" style="margin-bottom: 1rem;">Category Distribution</h3>
+            <div id="category-bar-chart"></div>
+          </div>
+
+          <div class="card" style="text-align: center;">
+            <h3 class="card-title" style="margin-bottom: 1rem; justify-content: center;">Overall Resolution Rate</h3>
+            <div id="resolution-gauge-chart"></div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">
+              Based on verified citizen resolutions across all 15 municipal zones.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 class="card-title" style="margin-bottom: 1rem;">Zonal / Area-Wise Distribution</h3>
+          <div id="area-distribution-list"></div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title"><span>📑</span> Public Complaint Registry Data Table</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Real-time PostgreSQL Audit Log</span>
+          </div>
+          <div id="public-registry-table-container"></div>
+        </div>
+      </section>
+
+      <!-- 7. AI INSIGHTS VIEW -->
+      <section id="view-insights" class="view-section">
+        <div id="insights-view-container">
+          <!-- Rendered via js/insights.js -->
+        </div>
+      </section>
+
+      <!-- 8. NOTIFICATIONS VIEW -->
+      <section id="view-notifications" class="view-section">
+        <div style="margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.5rem; font-weight: 800;">Notifications & Activity Alerts</h2>
+          <p style="color: var(--text-secondary); font-size: 0.88rem;">
+            Real-time status updates, citizen verification requests, and SLA delay notices.
+          </p>
+        </div>
+        <div id="notifications-list-container" style="max-width: 800px;">
+          <!-- Rendered via js/notifications.js -->
+        </div>
+      </section>
+
+      <!-- 9. PROFILE & SETTINGS VIEW -->
+      <section id="view-profile" class="view-section">
+        <div style="max-width: 800px; margin: 0 auto;">
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <h3 class="card-title" style="margin-bottom: 1.25rem;">User Profile Settings</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">User Name</label>
+                <input type="text" id="profile-name" class="form-input" value="Karthik Raja" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="profile-email" class="form-input" value="karthik.citizen@civictrack.ai" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="profile-phone" class="form-input" value="+91 98765 43210" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Language Preference</label>
+                <select id="profile-language" class="form-select">
+                  <option value="en">English</option>
+                  <option value="ta">Tamil (தமிழ்)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Theme Mode</label>
+                <select id="profile-theme" class="form-select">
+                  <option value="dark">Dark Mode (Default)</option>
+                  <option value="light">Light Mode</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">GPS Geolocation API Status</label>
+                <div id="profile-gps-status" style="font-size: 0.9rem; margin-top: 0.4rem;">Checking...</div>
+              </div>
+
+              <div class="form-group full-width" style="margin-top: 1rem; display: flex; gap: 1rem;">
+                <button class="btn btn-primary" id="btn-save-profile">Save Settings</button>
+                <button class="btn btn-danger" id="btn-logout-profile">🚪 Sign Out</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Management Card (Visible for Municipal Officer / Admin Roles) -->
+          <div id="admin-user-management-card" class="card" style="margin-bottom: 1.5rem; border: 1px solid rgba(56, 189, 248, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 class="card-title" style="color: #38bdf8; font-size: 1.1rem;">
+                <span>👮</span> User Account Management (Officer / Admin)
+              </h3>
+              <span class="badge badge-verified">Admin Privileges Active</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+              Manage registered system users and remove unauthorized or inactive accounts from the database.
+            </p>
+            <div id="admin-users-table-container">
+              <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading user directory...</div>
+            </div>
+          </div>
+
+          <!-- Hackathon Prototype Data Control Card -->
+          <div class="card" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3);">
+            <h3 class="card-title" style="color: #fbbf24; margin-bottom: 0.75rem;">
+              <span>🛠️</span> Demo Data Controls (Hackathon Sandbox)
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              Reset local prototype storage or load fresh demo complaints.
+            </p>
+            <div style="display: flex; gap: 1rem;">
+              <button class="btn btn-secondary" id="btn-load-demo-data">🔄 Load Demo Data (10 Complaints)</button>
+              <button class="btn btn-danger" id="btn-clear-demo-data">🗑️ Clear Demo Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. SIGN IN VIEW — Full-Screen Split Panel -->
+      <section id="view-signin" class="view-section">
+        <div class="login-fullscreen">
+
+          <!-- LEFT: Hero Branding Panel -->
+          <div class="login-hero-panel">
+            <div class="login-hero-content">
+              <div class="login-hero-logo">IR</div>
+
+              <h1 class="login-hero-title">
+                The City Platform<br/>Built for <span>Real Action</span>
+              </h1>
+              <p class="login-hero-tagline">
+                Report civic issues, track authority responses, and verify resolutions in real-time. Your voice — from report to fix.
+              </p>
+
+              <div class="login-feature-list">
+                <div class="login-feature-item"><span class="fi-dot"></span> AI-powered issue detection &amp; severity scoring</div>
+                <div class="login-feature-item"><span class="fi-dot"></span> Live GPS location capture &amp; mapping</div>
+                <div class="login-feature-item"><span class="fi-dot"></span> Real-time department routing &amp; SLA tracking</div>
+                <div class="login-feature-item"><span class="fi-dot"></span> Citizen verification loop — close the feedback gap</div>
+              </div>
+
+              <!-- Live city stats pulled from backend -->
+              <div class="login-live-stats">
+                <div class="login-stat-item">
+                  <span class="login-stat-value" id="login-stat-total">—</span>
+                  <span class="login-stat-label">Reports</span>
+                </div>
+                <div class="login-stat-item">
+                  <span class="login-stat-value" id="login-stat-resolved">—</span>
+                  <span class="login-stat-label">Resolved</span>
+                </div>
+                <div class="login-stat-item">
+                  <span class="login-stat-value" id="login-stat-rate">—%</span>
+                  <span class="login-stat-label">Rate</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Auth Form Panel -->
+          <div class="login-form-panel">
+            <div class="login-form-header">
+              <h2>Welcome Back</h2>
+              <p>Sign in to your Impactora account</p>
+            </div>
+
+            <!-- Quick Demo Login -->
+            <div style="margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">⚡ Quick Demo Login</div>
+            <div class="login-quick-chips">
+              <button class="login-chip" id="btn-demo-citizen">
+                <span>👤</span> Citizen Demo
+              </button>
+              <button class="login-chip" id="btn-demo-officer">
+                <span>👮</span> Officer Demo
+              </button>
+            </div>
+
+            <div class="login-divider">or sign in with email</div>
+
+            <div id="signin-alert" style="display: none;"></div>
+
+            <form id="signin-form">
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="signin-email">Email Address</label>
+                <input type="email" id="signin-email" class="form-input" placeholder="name@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label class="form-label" for="signin-password">Password</label>
+                  <a href="javascript:void(0)" onclick="window.AppState.showToast('Demo reset: Use password123', 'info')" style="font-size: 0.78rem; color: #38bdf8; text-decoration: none;">Forgot password?</a>
+                </div>
+                <div class="password-input-wrap">
+                  <input type="password" id="signin-password" class="form-input" placeholder="Enter your password" required autocomplete="current-password" />
+                  <button type="button" class="toggle-password-btn" data-target="signin-password" title="Toggle password visibility">👁️</button>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <input type="checkbox" id="signin-remember" checked style="accent-color: #38bdf8;" />
+                <label for="signin-remember" style="cursor: pointer;">Remember session on this device</label>
+              </div>
+
+              <button type="submit" id="signin-submit-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 700;">
+                Sign In
+              </button>
+            </form>
+
+            <div class="auth-form-footer">
+              Don't have an account yet? <a href="#signup">Create an Account</a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 10. SIGN UP VIEW -->
+      <section id="view-signup" class="view-section">
+        <div class="auth-container">
+          <div class="auth-card" style="max-width: 520px;">
+            <div class="auth-brand">
+              <div class="auth-brand-logo">CT</div>
+              <h2 class="auth-title">Join CivicTrack AI</h2>
+              <p class="auth-subtitle">Create an account to report civic issues and verify municipal work</p>
+            </div>
+
+            <div id="signup-alert" style="display: none;"></div>
+
+            <form id="signup-form">
+              <div class="form-group" style="margin-bottom: 1.1rem;">
+                <label class="form-label">Select Account Type</label>
+                <div class="role-selector-grid">
+                  <div class="role-card-option">
+                    <input type="radio" name="signup-role" id="role-citizen" value="Citizen" checked />
+                    <label for="role-citizen" class="role-card-label">
+                      <span style="font-size: 1.25rem;">🏡</span>
+                      <span>Citizen</span>
+                    </label>
+                  </div>
+                  <div class="role-card-option">
+                    <input type="radio" name="signup-role" id="role-officer" value="Municipal Officer" />
+                    <label for="role-officer" class="role-card-label">
+                      <span style="font-size: 1.25rem;">🏛️</span>
+                      <span>Municipal Officer</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.1rem;">
+                <label class="form-label" for="signup-name">Full Name *</label>
+                <input type="text" id="signup-name" class="form-input" placeholder="e.g. Karthik Raja" required />
+              </div>
+
+              <div class="form-grid" style="margin-bottom: 1.1rem;">
+                <div class="form-group">
+                  <label class="form-label" for="signup-email">Email Address *</label>
+                  <input type="email" id="signup-email" class="form-input" placeholder="name@domain.com" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="signup-phone">Phone Number</label>
+                  <input type="tel" id="signup-phone" class="form-input" placeholder="+91 98765 43210" />
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-bottom: 1.1rem;">
+                <div class="form-group">
+                  <label class="form-label" for="signup-password">Password *</label>
+                  <div class="password-input-wrap">
+                    <input type="password" id="signup-password" class="form-input" placeholder="At least 6 chars" required minlength="6" />
+                    <button type="button" class="toggle-password-btn" data-target="signup-password">👁️</button>
+                  </div>
+                  <div class="password-strength-container">
+                    <div class="password-strength-track"><div id="password-strength-bar" class="password-strength-bar"></div></div>
+                    <span id="password-strength-label" class="password-strength-label"></span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="signup-confirm-password">Confirm Password *</label>
+                  <div class="password-input-wrap">
+                    <input type="password" id="signup-confirm-password" class="form-input" placeholder="Re-enter password" required />
+                    <button type="button" class="toggle-password-btn" data-target="signup-confirm-password">👁️</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-secondary);">
+                <input type="checkbox" id="signup-terms" checked style="margin-top: 0.2rem; accent-color: #38bdf8;" required />
+                <label for="signup-terms" style="cursor: pointer;">
+                  I agree to the <a href="javascript:void(0)" style="color: #38bdf8;">Terms of Service</a> and <a href="javascript:void(0)" style="color: #38bdf8;">Privacy Policy</a>.
+                </label>
+              </div>
+
+              <button type="submit" id="signup-submit-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 700;">
+                Create Account
+              </button>
+            </form>
+
+            <div class="auth-form-footer">
+              Already have an account? <a href="#signin">Sign In</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (< 1024px) -->
+  <nav class="mobile-nav">
+    <a href="#dashboard" class="mobile-nav-item active">
+      <span class="mobile-nav-icon">📊</span>
+      <span>Home</span>
+    </a>
+    <a href="#map" class="mobile-nav-item">
+      <span class="mobile-nav-icon">📍</span>
+      <span>Map</span>
+    </a>
+    <a href="#report" class="mobile-nav-item report-cta">
+      <div class="mobile-nav-icon-bg">📸</div>
+      <span>Report</span>
+    </a>
+    <a href="#complaints" class="mobile-nav-item">
+      <span class="mobile-nav-icon">📁</span>
+      <span>Complaints</span>
+    </a>
+    <a href="#profile" class="mobile-nav-item">
+      <span class="mobile-nav-icon">👤</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Floating Hackathon Demo Pill REMOVED -->
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Main JavaScript Application Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
