@@ -217,14 +217,14 @@ export const AppState = {
 
       case '#signin':
         document.getElementById('view-signin')?.classList.add('active');
-        if (pageTitleEl) pageTitleEl.innerText = 'Sign In to CivicTrack AI';
+        if (pageTitleEl) pageTitleEl.innerText = 'Sign In to Civic Lens';
         // Load public stats on login page hero panel
         DashboardController.loadLoginPageStats();
         break;
 
       case '#signup':
         document.getElementById('view-signup')?.classList.add('active');
-        if (pageTitleEl) pageTitleEl.innerText = 'Create your CivicTrack Account';
+        if (pageTitleEl) pageTitleEl.innerText = 'Create your Civic Lens Account';
         break;
 
       default:

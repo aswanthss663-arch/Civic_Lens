@@ -1,11 +1,14 @@
 /* ==========================================================================
-   CivicTrack AI - Frontend API Service Abstraction Layer
-   Connected directly to Python FastAPI + PostgreSQL Database Backend!
+   Civic Lens - Frontend API Service Abstraction Layer
+   Connected directly to Node.js Express Backend & Python FastAPI AI Service!
    ========================================================================== */
 
 import { StorageManager } from './storage.js';
 
-const BACKEND_BASE_URL = 'http://localhost:8000/api/v1';
+const BACKEND_BASE_URL = window.location.origin.includes('5001') || window.location.origin.includes('5000')
+  ? '/api'
+  : 'http://localhost:5001/api';
+
 
 export const API = {
   // Returns Authorization header object if user is logged in
@@ -427,4 +430,3 @@ export const API = {
     }
   }
 };
-

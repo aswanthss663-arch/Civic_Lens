@@ -1,177 +1,339 @@
-# CivicTrack AI
+# Civic Lens
 
 > **Tagline:** *"Report the Problem. Track the Action. Verify the Solution."*  
-> *"Complaint poda mattum illa — resolution varaikkum track pannura system."*
+> *"Closing the accountability loop from citizen report to verified resolution."*
 
-CivicTrack AI is a citizen-focused public issue reporting and civic accountability platform built for hackathons and production deployment.
+Civic Lens is a citizen-focused civic issue reporting and accountability platform that empowers residents to report infrastructure problems, track authority progress, review resolution evidence, and verify completed fixes before issues are officially closed.
 
 ---
 
-## 🛠️ Technology Stack & Constraints
+## 🎯 Problem Statement
 
-This application is built **100% using native web technologies**:
-- **HTML5** (Semantic structure, Geolocation API, File Drag & Drop, Canvas API)
-- **CSS3** (CSS Custom Properties, Glassmorphism backdrop blurs, SVG rendering, Responsive Breakpoints)
-- **Vanilla JavaScript ES Modules** (SPA Routing, LocalStorage Data Layer, Simulated AI Engine)
+Traditional civic grievance systems suffer from significant transparency gaps:
+- **Lack of Tracking:** Citizens submit complaints into a "black box" without clear progress status or timelines.
+- **Premature Closure:** Authorities often mark complaints as "Resolved" without on-the-ground proof or citizen verification.
+- **Duplicate Overload:** Municipal offices receive hundreds of duplicate complaints for the same incident (e.g., a major pothole or water leak), wasting administrative bandwidth.
+- **Low Public Trust:** Absence of verifiable resolution evidence breeds public frustration and disengagement.
 
-**Zero Third-Party Dependencies or Frameworks**:
-- ❌ No React / Vue / Angular / Next.js
-- ❌ No Tailwind CSS / Bootstrap
-- ❌ No Firebase / MongoDB
-- ❌ No external chart/map libraries required
+---
+
+## 💡 The Civic Lens Solution
+
+Civic Lens resolves these challenges through an end-to-end accountability workflow:
+
+```
+Citizen identifies a civic/environmental problem
+        ↓
+Uploads issue image & previews details
+        ↓
+Automatic location/geolocation capture (GPS + Address)
+        ↓
+AI-based issue categorization & severity rating
+        ↓
+Duplicate issue detection (Proximity + Text similarity)
+        ↓
+Issue submitted to database
+        ↓
+Issue status tracking & authority action updates
+        ↓
+Resolution evidence uploaded by authority squad
+        ↓
+Citizen verifies resolution (Confirm & Close OR Reject & Reopen)
+        ↓
+Issue closed
+```
+
+---
+
+## ✨ Key Features
+
+1. **Civic Issue Reporting:** Seamless single-page application workflow for reporting potholes, streetlight failures, garbage overflows, drainage blockages, and public property damage.
+2. **Enhanced Image Upload:** Drag-and-drop or file picker with instant image preview, format validation (JPG, JPEG, PNG, WEBP), and size checks.
+3. **Geolocation Tagging:** HTML5 Browser Geolocation API integration with automatic latitude/longitude capture and editable address landmarks.
+4. **AI Issue Categorization:** Baseline machine-learning microservice that predicts issue category, confidence level, severity rating, and recommended department.
+5. **Duplicate Issue Detection:** Proximity-based Haversine distance analysis and category matching to flag potential duplicate reports before submission.
+6. **Status Lifecycle Tracking:** Real-time progress timeline supporting `SUBMITTED`, `UNDER_REVIEW`, `ASSIGNED`, `IN_PROGRESS`, `RESOLVED`, `VERIFICATION_PENDING`, `VERIFIED`, `CLOSED`, and `REOPENED`.
+7. **Resolution Evidence:** Mandatory proof-of-work image upload and notes from municipal field squads when marking issues as resolved.
+8. **Citizen Resolution Verification:** Interactive verification prompt enabling reporting citizens to verify completed work or reject and reopen unresolved issues.
+9. **Public Transparency Dashboard:** Citywide resolution rate metrics, department SLA performance, interactive Civic Map, and zonal analytics.
+
+---
+
+## 🏗️ System Architecture
+
+Civic Lens follows a modular multi-tier microservice architecture:
+
+```
++-------------------------------------------------------------+
+|               Frontend (Browser SPA)                        |
+|   HTML5, CSS3 Glassmorphism, Vanilla JS ES Modules, Leaflet |
++-------------------------------------------------------------+
+                              |
+                              v  HTTP REST API
++-------------------------------------------------------------+
+|               Node.js / Express Backend                     |
+|  REST Controllers, Input Validation, CORS, DB Connection    |
++-------------------------------------------------------------+
+               |                               |
+               v (SQL Query)                   v (Proxy HTTP)
++-------------------------------+   +-----------------------------------+
+|      PostgreSQL Database      |   |    Python FastAPI AI Service     |
+| (Schema: schema.sql & seed)   |   | (Predict, Duplicate Check, Health)|
++-------------------------------+   +-----------------------------------+
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Core:** HTML5, Vanilla JavaScript ES Modules (SPA Router, State Management).
+- **Styling:** Custom CSS3 Design System with HSL Color Tokens, Dark/Light Mode Glassmorphism, Responsive Breakpoints.
+- **Mapping:** Leaflet.js (OpenStreetMap engine with native pin rendering).
+- **APIs:** HTML5 Geolocation API, File Drag & Drop API, Canvas API.
+
+### Backend API
+- **Runtime:** Node.js (v18+)
+- **Framework:** Express.js
+- **Middleware:** CORS, dotenv, JSON Body Parser.
+- **Data Abstraction:** PostgreSQL client (`pg`) with automatic SQLite fallback (`civictrack.db`) for seamless standalone evaluation.
+
+### Database
+- **Engine:** PostgreSQL 14+ (or SQLite fallback)
+- **Files:** `database/schema.sql`, `database/seed.sql`
+
+### AI Service Microservice
+- **Language:** Python 3.10+
+- **Framework:** FastAPI / Uvicorn
+- **Modules:** Pydantic schemas, Pillow image processing, Haversine distance calculator, Jaccard text similarity engine.
+
+---
+
+## 🤖 AI Integration Strategy
+
+The AI microservice (`ai-service/`) is structured with a modular architecture so deep-learning computer vision models (e.g., YOLOv8, ResNet, OpenCV) or cloud vision APIs (e.g., Google Cloud Vision, OpenAI Vision API) can be hooked in without altering API contracts.
+
+### 1. Automatic Issue Categorization
+- **Current Prototype:** Heuristic keyword & visual feature classifier evaluating uploaded image metadata, selected category, and issue title/description.
+- **Output:**
+  ```json
+  {
+    "category": "Garbage / Waste",
+    "confidence": 0.96,
+    "severity": "HIGH",
+    "recommendation": "Deploy heavy compactor truck unit immediately and sanitize area.",
+    "priority_score": 88
+  }
+  ```
+- **Future Production Plan:** Train a custom YOLOv8 / PyTorch model on annotated urban civic datasets (potholes, garbage piles, broken lights, fallen trees).
+
+### 2. Duplicate Issue Detection
+- **Algorithm:** Combines Haversine geographic distance calculation ($D \le 500\text{m}$), category match weight, and text similarity scoring.
+- **Thresholds:** `DUPLICATE_DISTANCE_METERS=500`, `DUPLICATE_THRESHOLD=0.75`.
+- **User Experience:** Shows a warning banner `"Potential duplicate detected"` with the matching issue ID and distance, allowing the citizen to link their report or proceed.
+
+---
+
+## 🗄️ Database Schema
+
+The database schema (`database/schema.sql`) includes the following core tables:
+
+1. **`users`**: User accounts (Citizen, Municipal Officer, Admin) with email, hashed passwords, roles, and contact details.
+2. **`issues`**: Central issue reports containing title, description, category, severity, priority score, lat/lng coordinates, address, status, AI confidence, and department assignment.
+3. **`issue_images`**: Multi-image storage linking photos (Initial, Evidence, Verification) to issues.
+4. **`issue_status_history`**: Audit trail tracking status state changes, timestamps, and notes.
+5. **`issue_evidence`**: Proof of work uploaded by municipal authorities upon marking an issue resolved.
+6. **`issue_verification`**: Citizen confirmation or rejection feedback log.
+7. **`ai_predictions`**: Log of raw AI microservice predictions, confidence scores, and recommendations.
+
+---
+
+## ⚙️ Installation & Setup Guide
+
+### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **Python**: v3.10 or higher
+- **PostgreSQL**: Optional (system automatically falls back to embedded SQLite if PostgreSQL is not running)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/aswanthss663-arch/Civic_Lens.git
+cd Civic_Lens
+```
+
+### 2. Install Node Backend Dependencies
+```bash
+cd backend
+npm install
+cd ..
+```
+
+### 3. Install Python AI Service Dependencies
+```bash
+cd ai-service
+pip install -r requirements.txt
+cd ..
+```
+
+---
+
+## 🔐 Environment Variables
+
+Copy `.env.example` to create your local `.env` configuration:
+
+```bash
+cp .env.example .env
+```
+
+Default `.env` settings:
+```env
+PORT=5001
+NODE_ENV=development
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=civic_lens
+AI_SERVICE_URL=http://localhost:8000
+DUPLICATE_DISTANCE_METERS=500
+DUPLICATE_THRESHOLD=0.80
+```
+
+---
+
+## 🗃️ Database Setup
+
+### Option A: PostgreSQL Setup (Recommended for Production)
+```bash
+# Create database
+createdb civic_lens
+
+# Execute schema and seed scripts
+psql -d civic_lens -f database/schema.sql
+psql -d civic_lens -f database/seed.sql
+```
+
+### Option B: Automatic SQLite Fallback (Zero Config)
+If PostgreSQL is not running, the Node.js Express backend will automatically connect to `civictrack.db` with sample data. No manual database setup is required.
+
+---
+
+## 🚀 Running the Application
+
+### 1. Start the Python FastAPI AI Service (Terminal 1)
+```bash
+cd ai-service
+uvicorn main:app --reload --port 8000
+```
+*API docs available at: `http://localhost:8000/docs`*
+
+### 2. Start the Node.js Express Backend & Frontend (Terminal 2)
+```bash
+node backend/server.js
+```
+*App & REST API active at: `http://localhost:5001`*
+
+Open your browser at **`http://localhost:5001`** to interact with Civic Lens!
+
+---
+
+## 📡 API Documentation
+
+### Issues Endpoints
+- `GET /api/issues`: List all issues (supports `status`, `category`, `search` query parameters).
+- `POST /api/issues`: Create a new issue report.
+- `GET /api/issues/:id`: Retrieve single issue details with timeline.
+- `PATCH /api/issues/:id/status`: Update status (e.g., `IN_PROGRESS`, `RESOLVED`).
+- `POST /api/issues/:id/evidence`: Upload resolution evidence image and notes.
+- `POST /api/issues/:id/verify`: Citizen resolution verification (`isFixed: true/false`).
+
+### AI Microservice Endpoints
+- `POST /api/ai/classify` -> Proxies to FastAPI `POST /predict`.
+- `POST /api/ai/duplicate-check` -> Proxies to FastAPI `POST /duplicate-check`.
+- `GET /api/ai/health` -> AI microservice status.
+
+### Authentication Endpoints
+- `POST /api/auth/signup`: Register new citizen or officer account.
+- `POST /api/auth/signin`: Authenticate user and issue session token.
+- `GET /api/auth/me`: Retrieve current profile.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-civictrack/
+Civic_Lens/
 │
 ├── index.html              # Main Single-Page Application (SPA) entry shell
 │
-├── css/
-│   ├── style.css           # Design system variables, dark/light themes, typography & global UI components
-│   ├── dashboard.css       # Dashboard metrics cards, quick actions & activity feed layout
-│   ├── forms.css           # Issue reporting form, dropzone & AI scanning visual overlays
-│   ├── map.css             # Interactive visual Civic Map styling & pin popups
-│   └── responsive.css      # Responsive rules & mobile bottom navigation bar
+├── css/                    # Custom Vanilla CSS Design System
+│   ├── style.css           # Core theme variables, glassmorphism, typography & global UI
+│   ├── dashboard.css       # Metrics grid & activity feed styling
+│   ├── forms.css           # Dropzone, AI scan preview & form inputs
+│   ├── map.css             # Interactive Leaflet map styling & popups
+│   └── responsive.css      # Mobile navigation breakpoints
 │
-├── js/
-│   ├── app.js              # Central SPA router, state manager, theme & Tamil language controller
-│   ├── storage.js          # LocalStorage data persistence layer & realistic 10-complaint demo seed
-│   ├── api.js              # Asynchronous REST API abstraction wrapper (ready for Python backend)
-│   ├── ai.js               # Prototype AI Engine (vision analysis, severity rating, 0-100 priority score, duplicate detection)
-│   ├── report.js           # Issue reporting form logic, camera/upload handling, Geolocation API
-│   ├── complaints.js       # My Complaints list view with multi-status filters (Submitted, Verified, Resolved, Reopened)
-│   ├── details.js          # Interactive timeline tracking, Citizen Verification prompt, SLA escalation alerts
-│   ├── map.js              # Interactive visual SVG Civic Map renderer with zone labels & popups
-│   ├── dashboard.js        # Overview metrics & activity feed rendering
-│   ├── public-dashboard.js # Public transparency analytics & pure SVG charts generator
-│   ├── insights.js         # AI Macro Insights briefing (hotspot areas, recurring issue alerts)
-│   ├── notifications.js    # Real-time notifications drawer & badge counter
-│   └── profile.js          # User profile settings & hackathon demo data reset tools
+├── js/                     # ES Modules Frontend Application Logic
+│   ├── app.js              # SPA Router, state manager & theme controller
+│   ├── api.js              # REST API Service Wrapper (Node backend integration)
+│   ├── ai.js               # Frontend AI helper & priority score calculation
+│   ├── report.js           # Issue reporting form, dropzone & geolocation handling
+│   ├── complaints.js       # My Complaints tracking list & status filters
+│   ├── details.js          # Timeline tracking & Citizen Verification UI
+│   ├── dashboard.js        # Overview metrics & live location widget
+│   ├── map.js              # Leaflet map pin generator
+│   └── storage.js          # LocalStorage data persistence layer
 │
-└── README.md               # Complete Hackathon Demo Guide & Backend Integration Architecture
+├── backend/                # Node.js Express REST API Backend
+│   ├── server.js           # Main Express server entry point
+│   ├── package.json        # Backend dependencies
+│   ├── config/             # Database connection (PostgreSQL + SQLite fallback)
+│   ├── controllers/        # Business logic controllers
+│   ├── routes/             # Express API routes (issues, ai, auth, stats)
+│   └── services/           # AI proxy service
+│
+├── ai-service/             # Python FastAPI AI Microservice
+│   ├── main.py             # FastAPI entry point
+│   ├── requirements.txt    # Python dependencies
+│   ├── models/             # Pydantic schema models
+│   ├── routes/             # FastAPI routers (predict, duplicate, health)
+│   └── services/           # Classification & Haversine duplicate detector algorithms
+│
+├── database/               # PostgreSQL Database Scripts
+│   ├── schema.sql          # DDL tables, indexes, constraints
+│   └── seed.sql            # Seed complaints, users, timeline events
+│
+├── tests/                  # Automated API Test Suite
+│   └── api.test.js         # Node test runner suite
+│
+├── .env.example            # Environment variables template
+├── package.json            # Root scripts runner
+└── README.md               # Project documentation
 ```
 
 ---
 
-## 🚀 How to Run the Project
+## 🧪 Testing
 
-Since CivicTrack AI uses pure standard Web Standards and ES Modules:
+Run the automated test suite to verify backend REST APIs, AI classification proxy, and duplicate detection:
 
-### Option 1: Static File Server (Recommended)
-You can serve the directory using any simple static HTTP server:
 ```bash
-# Using Python 3 built-in HTTP server:
-python3 -m http.server 8000
+npm test
 ```
-Then open your browser at:
-`http://localhost:8000`
 
-### Option 2: Directly Open `index.html` in Web Browser
-Open `index.html` directly in modern web browsers (Chrome, Firefox, Edge, Safari). Note that ES module imports require serving over `http://` or `file://` with local module support enabled.
-
----
-
-## 🎯 13-Step Hackathon Demo Presentation Flow
-
-Follow this exact flow during your hackathon presentation to showcase all core features:
-
-1. **Step 1: Open CivicTrack AI**  
-   - Show the modern dark-themed dashboard header with tagline *"Your city. Your voice. Your impact."* and overall stats (Total 1,284, Resolved 947, 73.7% Resolution Rate).
-
-2. **Step 2: Click "+ Report a Problem"**  
-   - Click the primary CTA button on the sidebar or top hero.
-
-3. **Step 3: Upload / Snap Image**  
-   - Click the image dropzone or `📷 Use Camera` button to select/generate an issue photo.
-
-4. **Step 4: AI Prototype Analysis Runs**  
-   - Observe the live scanning animation output:
-     - **Pothole detected**
-     - **Confidence: 94%**
-     - **Severity: HIGH**
-     - **AI Priority Score: 87/100**
-
-5. **Step 5: GPS Location Capture**  
-   - Click `🎯 Use My Location (GPS)` to request browser geolocation API permission. Coordinates (Lat 13.0850, Lng 80.2101) fill automatically.
-
-6. **Step 6: Smart AI Summary & Dept Routing**  
-   - AI generates a recommended department: *"Road Maintenance & Engineering"* and impact summary.
-
-7. **Step 7: Duplicate Complaint Detection**  
-   - Notice the duplicate warning pill if another report is within 500m.
-
-8. **Step 8: Click "Submit Complaint"**  
-   - System generates a unique Complaint ID: e.g. `CT-2026-001284`.
-
-9. **Step 9: Interactive Timeline Tracking**  
-   - View live tracking timeline: `Submitted` → `AI Verified` → `Assigned` → `In Progress` → `Resolved` → `Citizen Verification`.
-
-10. **Step 10: Simulate Authority Action**  
-    - Click the demo button `[ Simulate: Authority Resolve ]` to simulate authority marking the work finished.
-
-11. **Step 11: Citizen Verification Alert Appears**  
-    - Prominent prompt appears: *"Has this problem actually been fixed on the ground?"*
-
-12. **Step 12: Click "NO, STILL EXISTS"**  
-    - Status immediately transitions to **REOPENED**.
-    - Notification notice sent: *"Thank you. The issue has been reopened and escalated for further action."*
-
-13. **Step 13: Automatic Escalation SLA Warning**  
-    - System displays: `⚠️ Complaint Delayed - Escalation Recommended`.
+Expected output:
+```
+✔ 1. AI Classification Service Baseline
+✔ 2. Duplicate Issue Detection Algorithm
+✔ 3. Issue Controller Response Format
+✔ Civic Lens API Tests - Pass 4 / Fail 0
+```
 
 ---
 
-## 🐍 Future Python Backend & PostgreSQL Integration Guide
+## 🔮 Future Enhancements
 
-Although this hackathon prototype uses `localStorage` for frontend persistence, all data operations are strictly encapsulated inside `js/api.js`.
-
-To connect to a Python (FastAPI / Flask) + PostgreSQL backend:
-
-1. **Replace LocalStorage in `js/api.js`**:
-   ```javascript
-   // Example Python REST API Connection inside js/api.js
-   const API_BASE_URL = 'http://localhost:8000/api/v1';
-
-   export const API = {
-     async getComplaints(filter = {}) {
-       const res = await fetch(`${API_BASE_URL}/complaints?status=${filter.status || ''}`);
-       return await res.json();
-     },
-
-     async createComplaint(data) {
-       const res = await fetch(`${API_BASE_URL}/complaints`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(data)
-       });
-       return await res.json();
-     },
-
-     async updateComplaintStatus(id, newStatus, byUser, notes) {
-       const res = await fetch(`${API_BASE_URL}/complaints/${id}/status`, {
-         method: 'PATCH',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ status: newStatus, byUser, notes })
-       });
-       return await res.json();
-     }
-   };
-   ```
-
-2. **Suggested Database Schema (PostgreSQL)**:
-   - `users` (id, name, email, phone, role)
-   - `complaints` (id VARCHAR PRIMARY KEY, category, title, description, latitude, longitude, address, zone, severity, priority_score, status, created_at, assigned_department, sla_due_date, image_url)
-   - `timeline_events` (id, complaint_id, status, label, timestamp, updated_by, notes)
-   - `citizen_verifications` (id, complaint_id, is_fixed, feedback_notes, verified_at)
-
----
-
-## 💡 Simulated & Prototype Features Disclosure
-
-To ensure transparency during hackathon evaluation, the following features are simulated prototype implementations:
-- **AI Computer Vision**: Rule-based heuristic simulation of image detection, confidence levels, and severity ratings (`js/ai.js`).
-- **Civic Map**: Interactive visual SVG grid map simulating city zones and pin locations without requiring external Google Maps / Mapbox API tokens.
-- **Authority Workflow**: Simulated using the floating `[DEMO CONTROLS]` action bar allowing judges to test status changes instantaneously.
+1. **Deep Learning Computer Vision:** Integrate PyTorch / YOLOv8 models into `ai-service/services/classifier.py` for automated multi-class damage detection.
+2. **Authority Portal:** Dedicated municipal officer dispatch board with SLA escalation countdown timers.
+3. **GIS Heatmap Analytics:** Mapbox / GIS spatial density maps for urban planning and municipal resource allocation.
+4. **Push Notifications:** Web Push / SMS alerts notifying citizens when authorities update issue status or request verification.

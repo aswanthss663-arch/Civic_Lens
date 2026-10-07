@@ -1,0 +1,22 @@
+{
+  "name": "civic-lens",
+  "version": "1.0.0",
+  "description": "Civic Lens - Citizen-focused civic issue reporting & accountability platform",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev:backend": "node --watch backend/server.js",
+    "dev:ai": "cd ai-service && uvicorn main:app --reload --port 8000",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "civic-tech",
+    "fastapi",
+    "express",
+    "postgresql",
+    "ai-classification",
+    "duplicate-detection"
+  ],
+  "author": "",
+  "license": "MIT"
+}
